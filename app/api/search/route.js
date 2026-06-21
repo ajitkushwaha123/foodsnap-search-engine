@@ -95,26 +95,38 @@ export async function GET(req) {
                 }
             },
             {
-                $skip: skip
-            },
-            {
-                $limit: limit
-            },
-            {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    image_url: 1,
-                    score: { $meta: "searchScore" }
+                $facet: {
+                    metadata: [{ $count: "total" }],
+                    data: [
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                image_url: 1,
+                                score: { $meta: "searchScore" }
+                            }
+                        }
+                    ]
                 }
             }
         ];
 
-        const results = await Image.aggregate(pipeline);
+        const rawResults = await Image.aggregate(pipeline);
+        const facetResult = rawResults[0];
+        
+        const total = facetResult?.metadata?.[0]?.total || 0;
+        const results = facetResult?.data || [];
+        const hasMore = skip + results.length < total;
 
         return NextResponse.json({
             success: true,
-            data: results
+            data: results,
+            page,
+            limit,
+            total,
+            hasMore
         });
     } catch (err) {
         console.error("Search API Error:", err);

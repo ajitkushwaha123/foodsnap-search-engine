@@ -30,6 +30,7 @@ export default function SearchPage() {
   });
 
   const results = data?.data || [];
+  const hasMore = data?.hasMore || false;
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-[#0a0a0a] text-black dark:text-white selection:bg-green-500/30 font-sans">
@@ -120,7 +121,7 @@ export default function SearchPage() {
 
               <button
                 onClick={() => setPage(p => p + 1)}
-                disabled={results.length < limit || isFetching}
+                disabled={!hasMore || isFetching}
                 className="px-6 py-2.5 rounded-lg font-bold text-sm bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-500/20"
               >
                 Next Page

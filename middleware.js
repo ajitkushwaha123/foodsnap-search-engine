@@ -13,6 +13,15 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    '/((?!api/auth|login|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (authentication APIs)
+     * - api/search (public search API)
+     * - login (login page)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    '/((?!api/auth|api/search|login|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };
