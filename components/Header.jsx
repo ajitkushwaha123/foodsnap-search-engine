@@ -4,9 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_ENDPOINTS, SAGEMAKER_STATUS } from "@/lib/constants";
 import { StatusBadge } from "./StatusBadge";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { data: status = "Loading...", isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['sagemakerStatus'],
@@ -60,6 +62,19 @@ export function Header() {
           <a href="/search" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
             Explore Images
           </a>
+          
+          <button 
+            onClick={async () => {
+              await axios.post('/api/auth/logout');
+              router.push('/login');
+            }}
+            className="text-sm flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors ml-4"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Lock System
+          </button>
         </div>
       </div>
       
