@@ -1,175 +1,61 @@
-import mongoose from "mongoose"
-const { Schema } = mongoose;
-
-const FOOD_TYPES = ["veg", "non_veg", "egg", "vegan"];
-
-const SPICE_LEVELS = [
-    "mild",
-    "medium",
-    "hot",
-    "very_hot",
-];
-
-const COURSES = [
-    "starter",
-    "main_course",
-    "side_dish",
-    "dessert",
-    "beverage",
-    "snack",
-];
-
-const CAMERA_ANGLES = [
-    "top_view",
-    "side_view",
-    "angled_view",
-    "close_up",
-];
-
-const PORTION_SIZES = [
-    "small",
-    "medium",
-    "large",
-];
-
-/* ============================================================
-   INGREDIENT ENTITY
-============================================================ */
+import mongoose, { Schema } from "mongoose";
 
 const IngredientSchema = new Schema(
     {
         name: {
             type: String,
             required: true,
-            lowercase: true,
             trim: true,
+            lowercase: true,
         },
 
         confidence: {
             type: Number,
             min: 0,
             max: 1,
+            default: 1,
         },
 
         importance: {
             type: Number,
             min: 0,
             max: 1,
+            default: 1,
         },
     },
     { _id: false }
 );
-
-/* ============================================================
-   TAXONOMY
-============================================================ */
 
 const TaxonomySchema = new Schema(
     {
         cuisine_family: String,
-
         cuisine_region: String,
-
         cuisine_sub_region: String,
-
         course: {
             type: String,
-            enum: COURSES,
         },
 
         dish_family: String,
-
         dish_type: String,
 
-        cooking_methods: [String],
-
-        proteins: [String],
-    },
-    { _id: false }
-);
-
-/* ============================================================
-   VISUAL FEATURES
-============================================================ */
-
-const VisualFeaturesSchema = new Schema(
-    {
-        dominant_colors: [String],
-
-        texture_tags: [String],
-
-        garnish: [String],
-
-        plating_style: String,
-
-        camera_angle: {
-            type: String,
-            enum: CAMERA_ANGLES,
+        cooking_methods: {
+            type: [String],
+            default: [],
         },
 
-        portion_size: {
-            type: String,
-            enum: PORTION_SIZES,
-        },
-
-        background_type: String,
-
-        image_caption: String,
-
-        visual_summary: String,
-    },
-    { _id: false }
-);
-
-/* ============================================================
-   IMAGE SEARCH FEATURES
-============================================================ */
-
-const ImageSearchSchema = new Schema(
-    {
-        detected_foods: [String],
-
-        detected_objects: [String],
-
-        confidence: {
-            type: Number,
-            min: 0,
-            max: 1,
+        proteins: {
+            type: [String],
+            default: [],
         },
     },
     { _id: false }
 );
-
-/* ============================================================
-   RECOMMENDATION FEATURES
-============================================================ */
-
-const RecommendationSchema = new Schema(
-    {
-        richness: Number,
-
-        creaminess: Number,
-
-        sweetness: Number,
-
-        spiciness: Number,
-
-        crunchiness: Number,
-
-        popularity_score: Number,
-    },
-    { _id: false }
-);
-
-/* ============================================================
-   ENRICHMENT
-============================================================ */
 
 const EnrichmentSchema = new Schema(
     {
         version: {
             type: String,
-            default: "v2",
+            default: "v3",
         },
 
         model: String,
@@ -181,7 +67,13 @@ const EnrichmentSchema = new Schema(
 
         normalized_name: {
             type: String,
+            trim: true,
             index: true,
+        },
+
+        canonical_dish_id: {
+            type: String,
+            trim: true,
         },
 
         taxonomy: {
@@ -194,24 +86,8 @@ const EnrichmentSchema = new Schema(
             default: [],
         },
 
-        visual_features: {
-            type: VisualFeaturesSchema,
-            default: {},
-        },
-
-        image_search: {
-            type: ImageSearchSchema,
-            default: {},
-        },
-
-        recommendation_features: {
-            type: RecommendationSchema,
-            default: {},
-        },
-
         spice_level: {
             type: String,
-            enum: SPICE_LEVELS,
         },
 
         dietary_tags: {
@@ -229,6 +105,11 @@ const EnrichmentSchema = new Schema(
             default: [],
         },
 
+        search_keywords: {
+            type: [String],
+            default: [],
+        },
+
         search_queries: {
             type: [String],
             default: [],
@@ -239,23 +120,14 @@ const EnrichmentSchema = new Schema(
             default: [],
         },
 
-        search_keywords: {
+        search_terms: {
             type: [String],
             default: [],
         },
 
-        embedding_text: String,
-
-        search_document: String,
-
-        text_embedding: {
-            type: [Number],
-            select: false,
-        },
-
-        visual_embedding: {
-            type: [Number],
-            select: false,
+        search_document: {
+            type: String,
+            trim: true,
         },
 
         confidence_score: {
@@ -272,45 +144,48 @@ const EnrichmentSchema = new Schema(
     { _id: false }
 );
 
-/* ============================================================
-   MAIN FOOD ITEM
-============================================================ */
-
-const FoodItemSchema = new Schema(
+const ImageSchema = new Schema(
     {
         title: {
             type: String,
             required: true,
+            trim: true,
             index: true,
         },
 
-        description: String,
+        description: {
+            type: String,
+            trim: true,
+        },
 
         image_url: {
             type: String,
             required: true,
+            trim: true,
         },
 
-        cuisine: String,
+        cuisine: {
+            type: String,
+            trim: true,
+        },
 
         category: {
             type: String,
+            trim: true,
             index: true,
         },
 
-        sub_category: String,
+        sub_category: {
+            type: String,
+            trim: true,
+        },
 
         food_type: {
             type: String,
-            enum: FOOD_TYPES,
+            lowercase: true,
         },
 
-        manual_tags: {
-            type: [String],
-            default: [],
-        },
-
-        auto_tags: {
+        tags: {
             type: [String],
             default: [],
         },
@@ -320,26 +195,10 @@ const FoodItemSchema = new Schema(
             default: false,
         },
 
-        system_approved: {
-            type: Boolean,
-            default: false,
+        popularity_score: {
+            type: Number,
+            default: 0,
         },
-
-        premium: {
-            type: Boolean,
-            default: false,
-        },
-
-        latest: {
-            type: Boolean,
-            default: true,
-        },
-
-        source: String,
-
-        quality_score: Number,
-
-        popularity_score: Number,
 
         likes: {
             type: Number,
@@ -353,7 +212,13 @@ const FoodItemSchema = new Schema(
 
         enrichment: {
             type: EnrichmentSchema,
+            default: undefined,
         },
+
+        is_combo: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true,
@@ -361,53 +226,119 @@ const FoodItemSchema = new Schema(
     }
 );
 
-/* ============================================================
-   SEARCH INDEXES
-============================================================ */
-
-FoodItemSchema.index(
+/**
+ * Main search index
+ */
+ImageSchema.index(
     {
         title: "text",
         description: "text",
-        "enrichment.search_document": "text",
-        "enrichment.search_keywords": "text",
+
+        "enrichment.normalized_name": "text",
+
         "enrichment.search_aliases": "text",
+
+        "enrichment.search_keywords": "text",
+
+        "enrichment.search_terms": "text",
+
+        "enrichment.search_document": "text",
+
+        "enrichment.misspellings": "text",
     },
     {
-        weights: {
-            title: 15,
-            "enrichment.search_aliases": 12,
-            "enrichment.search_keywords": 10,
-            "enrichment.search_document": 8,
-            description: 4,
-        },
         name: "food_search_index",
+
+        weights: {
+            title: 20,
+
+            "enrichment.normalized_name": 18,
+
+            "enrichment.search_aliases": 15,
+
+            "enrichment.search_terms": 15,
+
+            "enrichment.search_keywords": 12,
+
+            "enrichment.search_document": 10,
+
+            description: 5,
+
+            "enrichment.misspellings": 3,
+        },
     }
 );
 
-FoodItemSchema.index({
+/**
+ * Filtering indexes
+ */
+ImageSchema.index({
     approved: 1,
     latest: 1,
 });
 
-FoodItemSchema.index({
-    food_type: 1,
-    category: 1,
+ImageSchema.index({
+    approved: 1,
+    latest: 1,
+    popularity_score: -1,
 });
 
-FoodItemSchema.index({
+ImageSchema.index({
+    food_type: 1,
+    category: 1,
+    approved: 1,
+});
+
+ImageSchema.index({
+    likes: -1,
+    downloads: -1,
+});
+
+/**
+ * Enrichment indexes
+ */
+ImageSchema.index({
+    "enrichment.normalized_name": 1,
+});
+
+ImageSchema.index({
+    "enrichment.search_terms": 1,
+});
+
+ImageSchema.index({
+    "enrichment.search_aliases": 1,
+});
+
+ImageSchema.index({
+    "enrichment.search_keywords": 1,
+});
+
+ImageSchema.index({
+    "enrichment.dietary_tags": 1,
+});
+
+ImageSchema.index({
+    "enrichment.ingredient_entities.name": 1,
+});
+
+ImageSchema.index({
     "enrichment.taxonomy.cuisine_family": 1,
 });
 
-FoodItemSchema.index({
+ImageSchema.index({
+    "enrichment.taxonomy.cuisine_region": 1,
+});
+
+ImageSchema.index({
     "enrichment.taxonomy.dish_family": 1,
 });
 
-FoodItemSchema.index({
+ImageSchema.index({
     "enrichment.spice_level": 1,
 });
 
-module.exports = mongoose.model(
-    "FoodItem",
-    FoodItemSchema
-);
+const Image =
+    mongoose.models.Image ||
+    mongoose.model("Image", ImageSchema);
+
+export default Image;
