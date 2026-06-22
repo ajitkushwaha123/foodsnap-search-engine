@@ -22,6 +22,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
-    '/((?!api/auth|api/search|login|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!api/auth|api/search|api/ai|login|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };
